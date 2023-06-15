@@ -1,0 +1,13 @@
+@startuml
+' Style
+    skinparam actorStyle awesome
+
+' End Style
+' Functions
+    !function $usecase($text, $alias)
+        !return "usecase " + $text + " as " + $alias
+    !endfunction
+' End Functions
+
+
+@enduml
