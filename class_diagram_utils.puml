@@ -1,0 +1,49 @@
+@startuml
+
+' Styles
+hide empty members
+hide empty methods
+' End Styles
+
+
+' Functions definition
+
+    !function member($type, $name)
+    !return $name + " : <color:green>" + $type + "</color>"
+    !endfunction
+
+    !function list($type, $name)
+    !return member("List<" + $type + ">", $name)
+    !endfunction
+
+    !function int($name)
+    !return member(int, $name)
+    !endfunction
+
+    !function string($name)
+    !return member(String, $name)
+    !endfunction
+
+    !function void($name)
+    !return member(void, $name)
+    !endfunction
+
+    !function point($n1, $n2, $sign)
+        !return $n1 + $sign + $n2
+        
+    !endfunction
+
+    !function extends($child, $parent, $dir = false)
+    
+        !if ($dir == false)
+            !$response = point($child, $parent, "--|>")
+        !else
+            !$response = point($child, $parent, "-" + $dir + "-|>")
+        !endif
+
+        !return $response
+    !endfunction
+
+' End functions definition
+
+@enduml

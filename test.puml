@@ -1,0 +1,14 @@
+@startuml
+
+!include class_diagram_utils.puml
+
+class E {
+    +int(a)
+}
+
+class P
+
+extends(E, P, up)
+
+
+@enduml
