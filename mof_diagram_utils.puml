@@ -1,0 +1,24 @@
+@startuml
+skinparam actorStyle awesome
+skinparam ranksep 15
+skinparam nodesep 10
+skinparam UsecaseBackgroundColor #LightYellow
+
+!definelong uc($text, $alias)
+    ($text) as $alias
+!enddefinelong
+
+!definelong event($node1, $node2, $msg) 
+    event($node1, $node2, $msg, "", "")
+!enddefinelong
+
+!definelong event($node1, $node2, $msg, $dir1, $dir2) 
+    $node1 -$dir1-> $msg
+    $msg -$dir2-> $node2
+!enddefinelong
+
+!define intern($text, $alias) rectangle "$text" as $alias #Application
+!define extern($text, $alias) rectangle "$text" as $alias #TECHNOLOGY
+
+
+@enduml
