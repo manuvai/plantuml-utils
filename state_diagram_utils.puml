@@ -1,0 +1,19 @@
+@startuml
+
+!function point($n1, $n2, $sign, $description = false)
+
+    !$desc = " "
+    !if ($description != false)
+        !$desc = " : " + $description
+    !endif
+
+    !return $n1 + $sign + $n2 + $desc
+    
+!endfunction
+
+!function lier($n1, $n2, $description = false)
+    !return point($n1, $n2, "-->", $description)
+!endfunction
+
+
+@enduml

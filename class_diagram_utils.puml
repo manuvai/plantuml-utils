@@ -8,8 +8,31 @@ hide empty methods
 
 ' Functions definition
 
+    
+
     !function member($type, $name)
-    !return $name + " : <color:green>" + $type + "</color>"
+        !$stringLength = %strlen($name)
+        !$positionPar = %strpos($name, "(")
+        !$positionParFermante = %strpos($name, ")")
+
+        !if ($positionPar >= 0 && $positionParFermante - 1 != $positionPar) 
+            !$stringArguments = %substr($name, $positionPar + 1, $positionParFermante - $positionPar - 1)
+
+            !$name = %substr($name, 0, $positionPar + 1)
+
+            !$arguments = ""
+
+            !foreach $argument in %splitstr($stringArguments, ", ")
+                !if (%strlen($arguments) > 0)
+                    !$arguments = $arguments + ", "
+                !endif
+                !$arguments = $arguments + "<color:green>" + $argument + "</color>"
+            !endfor
+
+            !$name = $name + $arguments + ")"
+        !endif
+
+        !return $name + " : <color:green>" + $type + "</color>"
     !endfunction
 
     !function list($type, $name)

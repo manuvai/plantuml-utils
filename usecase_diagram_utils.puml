@@ -4,9 +4,9 @@
 
 ' End Style
 ' Functions
-    !function $usecase($text, $alias)
-        !return "usecase " + $text + " as " + $alias
-    !endfunction
+    !definelong usecase($text, $alias)
+        usecase "$text" as $alias
+    !enddefinelong
 ' End Functions
 
 

@@ -1,14 +1,16 @@
 @startuml
 
 !include class_diagram_utils.puml
+!include usecase_diagram_utils.puml
 
-class E {
-    +int(a)
+
+rectangle Alala {
+    usecase("Commander en ligne", order)
+    usecase("Visualiser le prix d'articles", load)
 }
 
-class P
+actor Client as clt
 
-extends(E, P, up)
-
-
+clt -right- load
+clt -right- order
 @enduml
