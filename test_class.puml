@@ -1,0 +1,42 @@
+@startuml
+
+!include class_diagram_utils.puml
+
+class Athlete {
+    -string(nom)
+    -string(prenom)
+
+    +string("getNom()")
+    +void("setNom(String)")
+    +string("getPrenom()")
+    +void("setPrenom(String)")
+}
+
+class Course {
+    -int(libelle)
+
+    +string("getLibelle()")
+    +void("affecterAthlete(Athlete, int)")
+    +void("enregistrerTemps(int)")
+    +void("start()")
+    +void("stop()")
+    +member(Athlete, "getConcurrent(int)")
+    +member(Athlete, "getVainqueur()")
+}
+
+class Couloir {
+    -int(num)
+
+    +int("getNum()")
+    +void("setAthlete(Athlete)")
+    +member(Athlete, "getAthlete()")
+    +int("getTemps()")
+    +void("start()")
+    +void("stop()")
+}
+
+Couloir *-right- Athlete
+Course o-- Couloir : couloirs
+
+
+@enduml

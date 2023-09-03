@@ -8,7 +8,9 @@ hide empty methods
 
 ' Functions definition
 
-    
+    !function colorate($name, $color = "green")
+        !return "<color:" + $color + ">" + $name + "</color>"
+    !endfunction
 
     !function member($type, $name)
         !$stringLength = %strlen($name)
@@ -26,13 +28,13 @@ hide empty methods
                 !if (%strlen($arguments) > 0)
                     !$arguments = $arguments + ", "
                 !endif
-                !$arguments = $arguments + "<color:green>" + $argument + "</color>"
+                !$arguments = $arguments + colorate($argument, "blue")
             !endfor
 
             !$name = $name + $arguments + ")"
         !endif
 
-        !return $name + " : <color:green>" + $type + "</color>"
+        !return $name + " : " + colorate($type)
     !endfunction
 
     !function list($type, $name)
