@@ -12,6 +12,34 @@ hide empty methods
         !return "<color:" + $color + ">" + $name + "</color>"
     !endfunction
 
+    !function colorateType($type)
+        !$stringLength = %strlen($type)
+        !$positionBrac = %strpos($type, "<")
+        !$positionBracFermante = %strpos($type, ">")
+
+        !if ($positionBrac >= 0 && $positionBracFermante - 1 != $positionBrac) 
+            !$stringArguments = %substr($type, $positionBrac + 1, $positionBracFermante - $positionBrac - 1)
+
+            !$type = colorate(%substr($type, 0, $positionBrac))
+
+            !$type = $type + "<"
+
+            !$arguments = ""
+
+            !foreach $argument in %splitstr($stringArguments, ", ")
+                !if (%strlen($arguments) > 0)
+                    !$arguments = $arguments + ", "
+                !endif
+                !$arguments = $arguments + colorate($argument, "OrangeRed")
+            !endfor
+
+            !$type = $type + $arguments + ">"
+        !endif
+
+        !return $type
+
+    !endfunction
+
     !function member($type, $name)
         !$stringLength = %strlen($name)
         !$positionPar = %strpos($name, "(")
@@ -34,7 +62,7 @@ hide empty methods
             !$name = $name + $arguments + ")"
         !endif
 
-        !return $name + " : " + colorate($type)
+        !return $name + " : " + colorateType($type)
     !endfunction
 
     !function list($type, $name)

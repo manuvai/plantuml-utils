@@ -1,6 +1,5 @@
 @startuml
 
-!include class_diagram_utils.puml
 !include usecase_diagram_utils.puml
 
 
