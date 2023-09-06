@@ -34,6 +34,8 @@ hide empty methods
             !endfor
 
             !$type = $type + $arguments + ">"
+        !else
+            !$type = colorate($type)
         !endif
 
         !return $type
