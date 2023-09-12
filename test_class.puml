@@ -1,6 +1,15 @@
 @startuml
 
 !include class_diagram_utils.puml
+abstract Demo {
+
+}
+
+class DemoInherits {
+
+}
+
+extends(DemoInherits, Demo)
 
 class Athlete {
     -string(nom)
@@ -10,6 +19,7 @@ class Athlete {
     +void("setNom(String)")
     +string("getPrenom()")
     +void("setPrenom(String)")
+    +member("HashMap<Integer, String>", "getSomething(int, List)")
 }
 
 class Course {
@@ -22,6 +32,7 @@ class Course {
     +void("stop()")
     +member(Athlete, "getConcurrent(int)")
     +member(Athlete, "getVainqueur()")
+    +list(Athlete, "getVainqueur()")
 }
 
 class Couloir {

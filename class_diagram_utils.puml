@@ -1,10 +1,8 @@
-@startuml
 
 ' Styles
 hide empty members
 hide empty methods
 ' End Styles
-
 
 ' Functions definition
 
@@ -12,26 +10,33 @@ hide empty methods
         !return "<color:" + $color + ">" + $name + "</color>"
     !endfunction
 
+    !function join($list, $color = "")
+        !$arguments = ""
+
+        !foreach $argument in $list
+            !if (%strlen($arguments) > 0)
+                !$arguments = $arguments + ", "
+            !endif
+            !$arguments = $arguments + colorate($argument, $color)
+        !endfor
+
+        !return $arguments
+
+    !endfunction
+
     !function colorateType($type)
         !$stringLength = %strlen($type)
-        !$positionBrac = %strpos($type, "<")
-        !$positionBracFermante = %strpos($type, ">")
+        !$positionChev = %strpos($type, "<")
+        !$positionChevFermante = %strpos($type, ">")
 
-        !if ($positionBrac >= 0 && $positionBracFermante - 1 != $positionBrac) 
-            !$stringArguments = %substr($type, $positionBrac + 1, $positionBracFermante - $positionBrac - 1)
+        !if ($positionChev >= 0 && $positionChevFermante - 1 != $positionChev) 
+            !$stringArguments = %substr($type, $positionChev + 1, $positionChevFermante - $positionChev - 1)
 
-            !$type = colorate(%substr($type, 0, $positionBrac))
+            !$type = colorate(%substr($type, 0, $positionChev))
 
             !$type = $type + "<"
 
-            !$arguments = ""
-
-            !foreach $argument in %splitstr($stringArguments, ", ")
-                !if (%strlen($arguments) > 0)
-                    !$arguments = $arguments + ", "
-                !endif
-                !$arguments = $arguments + colorate($argument, "OrangeRed")
-            !endfor
+            !$arguments = join(%splitstr($stringArguments, ", "), blue)
 
             !$type = $type + $arguments + ">"
         !else
@@ -52,14 +57,7 @@ hide empty methods
 
             !$name = %substr($name, 0, $positionPar + 1)
 
-            !$arguments = ""
-
-            !foreach $argument in %splitstr($stringArguments, ", ")
-                !if (%strlen($arguments) > 0)
-                    !$arguments = $arguments + ", "
-                !endif
-                !$arguments = $arguments + colorate($argument, "blue")
-            !endfor
+            !$arguments = join(%splitstr($stringArguments, ", "), "OrangeRed")
 
             !$name = $name + $arguments + ")"
         !endif
@@ -68,19 +66,27 @@ hide empty methods
     !endfunction
 
     !function list($type, $name)
-    !return member("List<" + $type + ">", $name)
+        !return member("List<" + $type + ">", $name)
     !endfunction
 
     !function int($name)
-    !return member(int, $name)
+        !return member(int, $name)
     !endfunction
 
     !function string($name)
-    !return member(String, $name)
+        !return member(String, $name)
     !endfunction
 
     !function void($name)
-    !return member(void, $name)
+        !return member(void, $name)
+    !endfunction
+
+    !function date($nom)
+        !return member(Date, $nom)
+    !endfunction
+
+    !function float($nom)
+        !return member(float, $nom)
     !endfunction
 
     !function point($n1, $n2, $sign)
@@ -98,7 +104,3 @@ hide empty methods
 
         !return $response
     !endfunction
-
-' End functions definition
-
-@enduml
