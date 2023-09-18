@@ -13,9 +13,12 @@ extends(DemoInherits, Demo)
 
 class Athlete {
     -string(nom)
-    -string(prenom)
+    -float(prenom)
+    -table(int, tableDeChiffres, 4)
+    -table(int, tableDeChiffres)
 
     +string("getNom()")
+    +string("getNom(List<QuelqueChose>)")
     +void("setNom(String)")
     +string("getPrenom()")
     +void("setPrenom(String)")
@@ -30,6 +33,8 @@ class Course {
     +void("enregistrerTemps(int)")
     +void("start()")
     +void("stop()")
+    +float("stop()")
+    +member(double, "stop()")
     +member(Athlete, "getConcurrent(int)")
     +member(Athlete, "getVainqueur()")
     +list(Athlete, "getVainqueur()")

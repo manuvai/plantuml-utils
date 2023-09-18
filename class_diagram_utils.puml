@@ -4,19 +4,71 @@ hide empty members
 hide empty methods
 ' End Styles
 
+
 ' Functions definition
+    !function isTablePrimary($arg)
+        !$stringLength = %strlen($arg)
+        !$positionCroch = %strpos($arg, "[")
+
+        !$typePrimary = %false()
+        !if ($positionCroch >= 0)
+            !$arg = %substr($arg, 0, $positionCroch)
+
+            !$typePrimary = _isPrimary($arg)
+        !endif
+
+        !return $typePrimary
+        
+
+    !endfunction
+
+    !function isPrimary($arg)
+        !return _isPrimary($arg) || isTablePrimary($arg)
+    !endfunction
+
+    !function _isPrimary($arg)
+
+        !$contain = %false()
+
+        !if ($arg == "int")
+            !$contain = %true()
+
+        !elseif ($arg == "float")
+            !$contain = %true()
+
+        !elseif ($arg == "void")
+            !$contain = %true()
+
+        !elseif ($arg == "double")
+            !$contain = %true()
+
+        ' !elseif ($arg == "String")
+        '     !$contain = %true()
+
+        !endif
+
+        !return $contain
+
+    !endfunction
 
     !function colorate($name, $color = "green")
         !return "<color:" + $color + ">" + $name + "</color>"
     !endfunction
 
-    !function join($list, $color = "")
+    !function join($list, $color1 = "", $color2 = "")
         !$arguments = ""
 
         !foreach $argument in $list
             !if (%strlen($arguments) > 0)
                 !$arguments = $arguments + ", "
             !endif
+
+            !if (%not(isPrimary($argument)))
+                !$color = $color2
+            !else
+                !$color = $color1
+            !endif
+
             !$arguments = $arguments + colorate($argument, $color)
         !endfor
 
@@ -32,15 +84,31 @@ hide empty methods
         !if ($positionChev >= 0 && $positionChevFermante - 1 != $positionChev) 
             !$stringArguments = %substr($type, $positionChev + 1, $positionChevFermante - $positionChev - 1)
 
-            !$type = colorate(%substr($type, 0, $positionChev))
+            !$type = %substr($type, 0, $positionChev)
+
+            !if (isPrimary($type))
+                !$colorOfType = "#d2453f"
+            !else
+                !$colorOfType = "#428ecd"
+
+            !endif
+
+            !$type = colorate($type, $colorOfType)
 
             !$type = $type + "<"
 
-            !$arguments = join(%splitstr($stringArguments, ", "), blue)
+            !$arguments = join(%splitstr($stringArguments, ", "), "#d2453f", "#f69c3e")
 
             !$type = $type + $arguments + ">"
         !else
-            !$type = colorate($type)
+
+            !if (isPrimary($type))
+                !$colorOfType = "#d2453f"
+            !else
+                !$colorOfType = "#428ecd"
+
+            !endif
+            !$type = colorate($type, $colorOfType)
         !endif
 
         !return $type
@@ -57,12 +125,20 @@ hide empty methods
 
             !$name = %substr($name, 0, $positionPar + 1)
 
-            !$arguments = join(%splitstr($stringArguments, ", "), "OrangeRed")
+            !$arguments = join(%splitstr($stringArguments, ", "), "#d2453f", "#428ecd")
 
             !$name = $name + $arguments + ")"
         !endif
 
-        !return $name + " : " + colorateType($type)
+        !if ($type == "void")
+            !$memberColored = $name + " : " + colorate($type, "Green")
+
+        !else
+            !$memberColored = $name + " : " + colorateType($type)
+
+        !endif
+
+        !return $memberColored
     !endfunction
 
     !function list($type, $name)
@@ -87,6 +163,14 @@ hide empty methods
 
     !function float($nom)
         !return member(float, $nom)
+    !endfunction
+
+    !function double($nom)
+        !return member(double, $nom)
+    !endfunction
+
+    !function table($type, $nom, $size = "")
+        !return member($type + "[" + $size + "]", $nom)
     !endfunction
 
     !function point($n1, $n2, $sign)
