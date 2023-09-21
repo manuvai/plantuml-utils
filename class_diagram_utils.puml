@@ -42,6 +42,9 @@ hide empty methods
         !elseif ($arg == "double")
             !$contain = %true()
 
+        !elseif ($arg == "boolean")
+            !$contain = %true()
+
         ' !elseif ($arg == "String")
         '     !$contain = %true()
 
@@ -133,12 +136,23 @@ hide empty methods
         !if ($type == "void")
             !$memberColored = $name + " : " + colorate($type, "Green")
 
+        !elseif ($type == "")
+            !$memberColored = $name
+
         !else
             !$memberColored = $name + " : " + colorateType($type)
 
         !endif
 
         !return $memberColored
+    !endfunction
+
+    !function construct($name)
+        !return member("", $name)
+    !endfunction
+
+    !function boolean($name)
+        !return member(boolean, $name)
     !endfunction
 
     !function list($type, $name)
