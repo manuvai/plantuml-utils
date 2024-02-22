@@ -1,0 +1,11 @@
+@startsalt
+
+' !include class_diagram_utils.puml
+
+class MaClasse {
+  -member("int", attribut1)
+  member("int", attribut2)
+  -member("void", "nom(String,Integer,List<Integer>)")
+}
+
+@endsalt
