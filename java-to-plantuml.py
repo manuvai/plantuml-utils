@@ -52,9 +52,12 @@ class Method:
         self.return_type = return_type
         self.visibility = visibility
         self.arguments_types = [] if not arguments_types else arguments_types
+        self.is_static = None
 
     def __str__(self) -> str:
-        return "{}member(\"{}\", \"{}({})\")".format(
+        static_string = "" if not self.is_static else " {" + "static" + "} "
+        return "{}{}member(\"{}\", \"{}({})\")".format(
+            static_string,
             self.visibility.value, 
             self.return_type,
             self.name,
@@ -67,6 +70,7 @@ class JavaClass:
         self.methods = [] if not methods else methods
 
     def __str__(self) -> str:
+
         attributes_string = "\n".join(["  " + str(_) for _ in self.attributes])
         methods_string = "\n".join(["  " + str(_) for _ in self.methods])
 
@@ -94,12 +98,11 @@ class Package:
 
         return response
 
-# re_methods = r"\s*(public|private|protected)?\s*(static)?\s*(?:@[a-zA-Z_][a-zA-Z0-9_]*(?:\([^)]*\))?\s+)*(?![a-zA-Z_])\s*([a-zA-Z_][a-zA-Z0-9_]*\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)\s*({)?\s*\n"
 re_methods = r"\s*(public|private|protected)?\s*(static)?\s*(?:@[a-zA-Z_][a-zA-Z0-9_]*(?:\([^)]*\))?\s+)*(?![a-zA-Z_])\s*(\w+(\[\])?(\s*<\s*\w+\s*>)?\s+)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)\s*({)?\s*\n"
 
 re_attributes = r"^\s*(public|private|protected)?\s+(?!class|return|package)(\w+(\[\])?(\s*<\s*\w+\s*>)?)\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*;"
 
-re_parameters = r'\b\w+(?:<\w+>)?\b(?=\s+\w+|$)'
+re_parameters = r'\b\w+(?:<\w+>)?\b(?=\s+\w+)'
 
 re_package = r'^package\s+([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*);\s*$'
 re_class = r'^\s*(?:public\s+)?(?:abstract\s+)?(?:final\s+)?(?:strictfp\s+)?class\s+([a-zA-Z_][a-zA-Z0-9_]*)'
@@ -123,6 +126,10 @@ def get_methods(content: str) -> list[Attribute]:
     def __get_arguments_types(arguments: str) -> list[str]:
         return re.findall(re_parameters, arguments)
     
+    def __is_method_invalid(name: str, return_type: str) -> bool:
+        return name.strip() in ["if", "catch", "for"] or \
+            return_type and return_type.strip() in ["new", "return"]
+    
     methods = []
 
     matches = re.finditer(re_methods, content, re.MULTILINE)
@@ -135,10 +142,17 @@ def get_methods(content: str) -> list[Attribute]:
         method_name = match.group(6)
         parameters = match.group(7)
 
-        methods.append(Method(method_name,
+        if (__is_method_invalid(method_name, return_type)):
+            continue
+        
+        method = Method(method_name,
             return_type,
             Visibility.from_string(visibility),
-            __get_arguments_types(parameters)))
+            __get_arguments_types(parameters))
+        
+        method.is_static = is_static
+
+        methods.append(method)
 
     return methods
 
@@ -152,20 +166,19 @@ def get_package(content: str) -> Package:
 
     return None if not matches else Package(matches.group(1))
 
-
 class PlantUmlAdapter:
     def __init__(self, content: str) -> None:
         self.content = content
         # TODO Faire en sorte que pour chaque contenu, on puisse extraire la classe => penser au package
 
-    def extract(self) -> tuple[Package, JavaClass]|None:
+    def extract(self) -> tuple[Package, JavaClass]:
         attributes = get_attributes(self.content)
         methods = get_methods(self.content)
         java_class = get_class(self.content)
         java_package = get_package(self.content)
 
-        if (not java_class and not java_package):
-            return None
+        if (not java_class or not java_package):
+            return None, None
         
         java_class.attributes = attributes
         java_class.methods = methods
@@ -182,11 +195,14 @@ class Extractor:
         files = [_.replace('\\', '/') for _ in files]
         return files
     
-    def execute(self, output: str) -> None:
-        def __write(content: str, path: str):
-            with open(path, "w") as file:
-                file.write(content)
+    def get_packages(self, files: str):
 
+        def __get_content(path: str) -> str:
+            with open(path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+            
+            return "\n".join(lines)
+        
         def __get_parent(name: str) -> str|None:
             last_dot_index = name.rfind('.')
             
@@ -194,12 +210,6 @@ class Extractor:
             parent_name = name[:last_dot_index] if last_dot_index != -1 else None
             
             return parent_name
-
-        def __get_content(path: str) -> str:
-            with open(path, "r", encoding="utf-8") as f:
-                lines = f.readlines()
-            
-            return "\n".join(lines)
 
         def __redo_packages(packages: dict[str, Package]) -> list[Package]:
             new_packages: dict[str, Package] = {}
@@ -213,10 +223,7 @@ class Extractor:
             
             return [_ for _ in new_packages.values()]
 
-
         packages: dict[str, Package] = {}
-
-        files = self.list_files()
 
         for file in files:
             content = __get_content(file)
@@ -227,20 +234,37 @@ class Extractor:
             key = "__default__"
             if (package is not None):
                 key = package.name
+            else:
+                package = Package(key)
 
             if (key not in packages):
                 packages[key] = package
 
             packages[key].classes.append(java_class)
 
-        packages_list = __redo_packages(packages)
+        return __redo_packages(packages)
 
-        packages_content = [_.__str__() for _ in packages_list]
+    
+    def execute(self, output: str) -> None:
+        def __write(content: str, path: str):
+            with open(path, "w") as file:
+                file.write(content)
+
+        def __get_packages_content(packages_list: list[Package]) -> list[str]:
+
+            return [_.__str__() for _ in packages_list]
+
+        files = self.list_files()
+
+        packages = self.get_packages(files)
+        packages_content = __get_packages_content(packages)
 
         content = "\n".join(packages_content)
 
         lib_url = "!includeurl https://raw.githubusercontent.com/manuvai/plantuml-utils/master/class_diagram_utils.puml"
+
         content = "@startuml\n\n" + lib_url + "\n" + content
+
         __write(content, output)
 
 def test_regex():
